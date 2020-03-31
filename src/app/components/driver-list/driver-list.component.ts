@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 import { User } from 'src/app/models/user';
 import { UserService } from 'src/app/services/user-service/user.service';
-import { AuthService } from 'src/app/services/auth-service/auth.service';
+import { RecommendationService } from 'src/app/services/Recommendation-Service/recommendation.service';
 import { Batch } from 'src/app/models/batch';
 import { Car } from 'src/app/models/car';
 import { CarService } from 'src/app/services/car-service/car.service';
@@ -11,6 +11,7 @@ import { BatchService } from 'src/app/services/batch-service/batch.service';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 import { GoogleService } from 'src/app/services/google-service/google.service';
+import { Recommendation } from 'src/app/models/recommendation';
 
 @Component({
   selector: 'app-driver-list',
@@ -23,12 +24,13 @@ export class DriverListComponent implements OnInit {
   mapProperties :{};
   availableCars : Array<any> = [];
   drivers : Array<any> = [];
+  driverRecs : Recommendation[];
 
 
   @ViewChild('map',null) mapElement: any;
   map: google.maps.Map;
 
-  constructor(private http: HttpClient,private userService: UserService,
+  constructor(private recService: RecommendationService, private http: HttpClient,private userService: UserService,
     private googleService: GoogleService) { }
 
   ngOnInit() {
@@ -123,6 +125,8 @@ displayDriversList(origin, drivers) {
           var results = response.rows[0].elements;
           //console.log(results[0].distance.text);
           var name =  element.name;
+          this.driverRecs = this.recService.generateRecPoints(drivers, results[0].distance, results[0].duration);
+          console.log(this.driverRecs)
           outputDiv.innerHTML += `<tr><td class="col">${name}</td>
                                   <td class="col">${results[0].distance.text}</td>
                                   <td class="col">${results[0].duration.text}</td>

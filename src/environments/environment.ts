@@ -16,7 +16,7 @@ const url = `${baseUrl}:${port}`;
 /**
  * google map api key 
  */
-const googleKey = process.env.GOOGLEMAPSKEY;
+const googleKey = '';
  /**
    * This is the environment config.
    */
