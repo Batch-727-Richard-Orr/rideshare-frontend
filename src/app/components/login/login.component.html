@@ -1,7 +1,7 @@
 <a (click)="openModal(template)">Login</a >
 <ng-template #template >
 <div class="container">
-    <div class="text-center" id="login-form">
+    <div (keydown.enter)="login()" class="text-center" id="login-form">
   <!-- <div class="form-group">
              <div class="dropdown">
                 <label for="users">Select Account:</label><br>
@@ -38,7 +38,7 @@
           
         <p class="alert alert-danger" *ngIf="failed"><strong>Login Failed!</strong></p>
         <p class="alert alert-danger" *ngIf="banned"><strong>You are banned</strong></p>
-          <button type="submit" class="btn btn-primary" id="sign-in-btn" (click)="login()">Login</button>
+          <button type="submit" class="btn btn-primary" id="sign-in-btn"  (click)="login()">Login</button>
         <br><br>
     </div>
 </div>
