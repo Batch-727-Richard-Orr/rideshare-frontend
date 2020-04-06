@@ -30,6 +30,7 @@
     <div class="row ">
     <div class="col-lg-6 filtered_list">
       <h4 class="text-center">Drivers</h4>
+      <!--<button type="button" id="driverRecs" (click)="sortByRec()">Driver Recommendations</button> -->
 
      <table class="table table-striped ">
        <thead class="thead-dark borderYtoX">
@@ -39,6 +40,7 @@
            <th scope="col" id="timeColumn" (click)="sortByTime()">Time</th>
            <th scope="col" id="seatsColumn" (click)="sortBySeats()">Seats</th>
            <th scope="col" id="infoColumn" (click)="sortByRec()">View Info</th>
+           <th scope="col" id="infoColumn" (click)="sortByRec()">Recommend</th>
          </tr>
        </thead>
        <tbody class="" id="output"></tbody>
