@@ -7,24 +7,29 @@ import { LogService } from '../log.service';
   providedIn: 'root'
 })
 export class GoogleService {
+  apiLoaded: boolean = false;
 
   constructor(private http: HttpClient, private log: LogService) { }
 
   getGoogleApi()  {
-    this.http.get(`${environment.infoUri}maps-api`)
-       .subscribe(
+    if (!this.apiLoaded){
+      this.http.get(`${environment.infoUri}maps-api`)
+      .subscribe(
           (response) => {
             this.log.info("Received Google Maps API key: "+
               JSON.stringify(response));
-            if(response["GOOGLEMAPSAPIKEY"]){
+            if(response["GOOGLE_MAPS_API_KEY"]){
                 new Promise((resolve) => {
                   let script: HTMLScriptElement = document.createElement('script');
                   script.addEventListener('load', r => resolve());
-                  script.src = `http://maps.googleapis.com/maps/api/js?key=${response["GOOGLEMAPSAPIKEY"]}&libraries=places`;
-                  document.head.appendChild(script);      
-                  }); 
-               }    
-           }
-       );
-   }
+                  script.src = `http://maps.googleapis.com/maps/api/js?key=${response["GOOGLE_MAPS_API_KEY"]}&libraries=places`;
+                  document.head.appendChild(script);  
+                  this.apiLoaded = true;    
+                });
+              }    
+          }
+      );
+    }
+  }
+    
 }
