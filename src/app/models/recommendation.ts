@@ -5,6 +5,5 @@ export class Recommendation {
     disPoints: number;
     timePoints: number;
     seatPoints: number;
-    recPoints: number = 
-    (this.disPoints + this.timePoints + this.seatPoints)
+    recPoints: number;
 }

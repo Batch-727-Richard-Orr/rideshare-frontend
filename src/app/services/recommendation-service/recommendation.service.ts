@@ -37,17 +37,15 @@ export class RecommendationService{
    * @param time duration of drive
    * @param seats the number of open seats in the vehicle
    */
-  generateRecPoints(drivers: User[], distance: number, time: number, seats: number): Recommendation[] {
-    this.driverRay = drivers;
-    for(let driver of drivers){
+  generateRecPoints(driver: User, distance: number, time: number, seats: number): Recommendation {
+
       this.driverRec = new Recommendation;
       this.driverRec.driver = driver;
       this.driverRec.disPoints = (1 / distance) * 1000;
       this.driverRec.timePoints = (1 / time) * 1000;
       this.driverRec.seatPoints = seats * 1000;
       this.driverRecs.push(this.driverRec)
-    }
-    return this.driverRecs;
+    return this.driverRec;
   }
 
 }
