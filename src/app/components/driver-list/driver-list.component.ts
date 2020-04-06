@@ -292,6 +292,7 @@ export class DriverListComponent implements OnInit {
     let tempDistance: Array<any> = [];
     let tempTime: Array<any> = [];
     let tempDriverList: Array<any> = [];
+    let tempRecs: Recommendation[] = [];
 
     let mark = 0;
     var outputDiv = document.getElementById('output');
@@ -299,6 +300,7 @@ export class DriverListComponent implements OnInit {
       tempDistance.push(this.distance[index[mark]]);
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
+      tempRecs.push(this.recomms[index[mark]]);
 
       outputDiv.innerHTML += `<tr><td class="col">${sDr}</td>
         <td class="col">${this.distance[index[mark]].text}</td>
@@ -339,6 +341,7 @@ export class DriverListComponent implements OnInit {
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
+    this.recomms = tempRecs;
   }
 
   sortByDistance() {
@@ -365,6 +368,7 @@ export class DriverListComponent implements OnInit {
     let tempDistance: Array<any> = [];
     let tempTime: Array<any> = [];
     let tempDriverList: Array<any> = [];
+    let tempRecs: Recommendation[] = [];
 
     let mark = 0;
     var outputDiv = document.getElementById('output');
@@ -372,6 +376,7 @@ export class DriverListComponent implements OnInit {
       tempDistance.push(this.distance[index[mark]]);
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
+      tempRecs.push(this.recomms[index[mark]]);
 
       outputDiv.innerHTML += `<tr><td class="col">${this.driversList[index[mark]].name}</td>
         <td class="col">${this.distance[index[mark]].text}</td>
@@ -421,6 +426,7 @@ export class DriverListComponent implements OnInit {
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
+    this.recomms = tempRecs;
   }
 
   sortByTime() {
@@ -447,6 +453,7 @@ export class DriverListComponent implements OnInit {
     let tempDistance: Array<any> = [];
     let tempTime: Array<any> = [];
     let tempDriverList: Array<any> = [];
+    let tempRecs: Recommendation[] = [];
 
     let mark = 0;
     var outputDiv = document.getElementById('output');
@@ -454,6 +461,7 @@ export class DriverListComponent implements OnInit {
       tempDistance.push(this.distance[index[mark]]);
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
+      tempRecs.push(this.recomms[index[mark]]);
 
       outputDiv.innerHTML += `<tr><td class="col">${this.driversList[index[mark]].name}</td>
         <td class="col">${this.distance[index[mark]].text}</td>
@@ -503,6 +511,7 @@ export class DriverListComponent implements OnInit {
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
+    this.recomms = tempRecs;
   }
 
   sortBySeats() {
@@ -530,6 +539,7 @@ export class DriverListComponent implements OnInit {
     let tempDistance: Array<any> = [];
     let tempTime: Array<any> = [];
     let tempDriverList: Array<any> = [];
+    let tempRecs: Recommendation[] = [];
 
     let mark = 0;
     var outputDiv = document.getElementById('output');
@@ -537,6 +547,7 @@ export class DriverListComponent implements OnInit {
       tempDistance.push(this.distance[index[mark]]);
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
+      tempRecs.push(this.recomms[index[mark]]);
 
       outputDiv.innerHTML += `<tr><td class="col">${this.driversList[index[mark]].name}</td>
         <td class="col">${this.distance[index[mark]].text}</td>
@@ -586,6 +597,7 @@ export class DriverListComponent implements OnInit {
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
+    this.recomms = tempRecs;
   }
 
   sortByRec() {
@@ -614,6 +626,7 @@ export class DriverListComponent implements OnInit {
     let tempDistance: Array<any> = [];
     let tempTime: Array<any> = [];
     let tempDriverList: Array<any> = [];
+    let tempRecs: Recommendation[] = [];
 
     let mark = 0;
     var outputDiv = document.getElementById('output');
@@ -621,6 +634,7 @@ export class DriverListComponent implements OnInit {
       tempDistance.push(this.distance[index[mark]]);
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
+      tempRecs.push(this.recomms[index[mark]]);
 
       outputDiv.innerHTML += `<tr><td class="col">${this.driversList[index[mark]].name}</td>
         <td class="col">${this.distance[index[mark]].text}</td>
@@ -670,6 +684,7 @@ export class DriverListComponent implements OnInit {
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
+    this.recomms = tempRecs;
   }
 
 }
