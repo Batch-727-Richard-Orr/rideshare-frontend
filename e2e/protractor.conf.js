@@ -18,7 +18,9 @@ exports.config = {
      './test/driverslist-sorting.spec.js',
     './test/userStatus.spec.js',
     './test/profile-location.spec.js',
-    './test/update-address.spec.js'
+    './test/update-address.spec.js',
+    './test/update-contact-information.spec.js',
+    './test/update-car.spec.js',
 
 
 
