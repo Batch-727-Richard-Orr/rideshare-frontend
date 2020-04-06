@@ -1,32 +1,47 @@
-<div class = "container">
-    <div class="row">
-    <div class="col-lg-5">
-     <!--<div class="form-group">
-        <h4>Origin</h4>
-        <input [(ngModel)]="origin" id="origin" class="form-control" placeholder="Morgantown, WV"/>
+
+  <div class = "container-fluid content text-center  ">
+    <div class="row d-flex justify-content-center h-100">
+      <div class="col-md-12 ">
+        <h1>Revature RideForce</h1>
       </div>
-      <div class="form-group">
-        <h4>Destination</h4>
-        <input [(ngModel)]="destination" id="destination" class="form-control" placeholder="Reston, VA"/>
+        <div class="searchbar">
+        <!-- <input type="text" [(ngModel)]="homeLocation" class="form-control" id=""> -->
+        <input class="search_input " type="text" name="" [(ngModel)]="homeLocation">
+        <!-- <a href="#" class="search_icon" (click)="searchDriver('none')"><i class="fas fa-search"></i></a> -->
+        <button  class="search_icon" (click)="searchDriver()"><i class="fa fa-search"></i></button>
+        <!-- <button  class="btn btn-primary register mt-2 mb-4" (click)="searchDriver('none')">Search</button>   -->
       </div>
-      <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-8">
-          <button id = "search" class="btn btn-primary" (click)="getDirection()">Get Direction</button>
-        </div>
+
+  </div>
+  <div class="row d-flex justify-content-center mt-3">
+    <div class = "content text-center col-md align-self-center col-lg-3">
+      <h4 for="customRange3">Distance Range</h4>
+      <!-- <label for="customRange3">{{this.range}}</label> -->
+      <ng-template #popContent>{{this.range}}</ng-template>
+        <input type="range" class="custom-range" min="0" max="250" step="1" id="customRange3" [(ngModel)]="range" (change)="searchDriver()" [ngbPopover]="popContent" triggers="mouseenter:mouseleave" placement="right">
+      <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="defaultChecked2" [(ngModel)]="sameOffice" (change)="searchDriver()">
+        <label class="custom-control-label" for="defaultChecked2">Same Office</label>
       </div>
-      <p id="total"></p>-->
-      <h4>Driver's List</h4>
-      
-     <table class="table table-striped">
-       <thead class="thead-dark">
-         <tr>
-           <th scope="col">Name</th>
-           <th scope="col">Distance</th>
-           <th scope="col">Time</th>
-           <th scope="col">View Info</th>
+    </div>
+  </div>
+  </div>
+<div class = "container ">
+    <div class="row ">
+    <div class="col-lg-6 filtered_list">
+      <h4 class="text-center">Drivers</h4>
+
+     <table class="table table-striped ">
+       <thead class="thead-dark borderYtoX">
+         <tr >
+           <th scope="col" id="nameColumn" (click)="sortByName()">  Name</th>
+           <th scope="col" id="distanceColumn" (click)="sortByDistance()">Distance</th>
+           <th scope="col" id="timeColumn" (click)="sortByTime()">Time</th>
+           <th scope="col" id="seatsColumn" (click)="sortBySeats()">Seats</th>
+           <th scope="col" id="infoColumn" (click)="sortByRec()">View Info</th>
          </tr>
        </thead>
-       <tbody id="output"></tbody>
+       <tbody class="" id="output"></tbody>
       </table>
      </div>
      <div class="col-lg-6">
@@ -34,4 +49,7 @@
        <div #map id="gmap" class="img-responsive"></div>
      </div>
     </div>
-  </div>
+</div>
+
+
+

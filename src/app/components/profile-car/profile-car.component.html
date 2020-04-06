@@ -1,15 +1,25 @@
-<div class="container mainContainer">
+<div class="container mainContainer" (keydown.enter) = "updatesCarInfo()">
     
         <i class="fa fa-car" style="font-family:'FontAwesome';"></i>
         
     
         <h4>Car Information:</h4>
+
+        <div class="form-group row">
+            <div class="col-sm-1"></div>
+                <label for="year" class="col-sm-4 col-form-label">Year:</label>
+                <div class="col-sm-4">
+                    <input type="text" class="form-control" id="year" [(ngModel)]=year>
+                    <p *ngIf="carYearError != ''" class="failed">{{carYearError}}</p>
+                </div>
+        </div>
         
         <div class="form-group row">
             <div class="col-sm-1"></div>
                 <label for="make" class="col-sm-4 col-form-label">Make:</label>
                 <div class="col-sm-4">
                     <input type="text" class="form-control" id="make" [(ngModel)]=make>
+                    <p *ngIf="carMakeError != ''" class="failed">{{carMakeError}}</p>
                 </div>
         </div>
         
@@ -18,6 +28,7 @@
             <label for="model" class="col-sm-4 col-form-label">Model:</label>
             <div class="col-sm-4">
                 <input type="text" class="form-control" id="model" [(ngModel)]=model>
+                <p *ngIf="carModelError!= ''" class="failed">{{carModelError}}</p>
             </div>
         </div>
 
@@ -26,18 +37,20 @@
                 <label for="Nrseats" class="col-sm-4 col-form-label ">Number of seats:</label>
                 <div class="col-sm-4">
                 <select class="form-control" id="Nrseats" [(ngModel)]=nrSeats>
-                    <option>Choose the number of seats</option>
+                    <!-- <option>Choose the number of seats</option> -->
                     <option value="1">1</option>
                     <option value="2">2</option>
                     <option value="3">3</option>
                     <option value="4">4</option>
                     <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
                 </select>
-                <p *ngIf="success != ''" class="success">{{success}}</p>
             </div>
         </div>
-        
-        <button type="submit" class="btn btn-primary myBtn" (click)="updatesCarInfo()">Save</button>
+        <button type="submit" class="btn btn-primary myBtn" id="save" (click)="updatesCarInfo()">Save</button>
+        <p *ngIf="success != ''" class="success">{{success}}</p>
+        <p *ngIf="failed != ''" class="failed">{{failed}}</p>
     </div>
     
         

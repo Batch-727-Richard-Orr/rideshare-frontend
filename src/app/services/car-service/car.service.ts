@@ -8,7 +8,7 @@ import { environment } from '../../../environments/environment';
 import { Observable } from 'rxjs';
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 /**
  * This is a car service
@@ -52,9 +52,18 @@ export class CarService {
 		return this.http.get<Car>(`${this.url}users/${userId}`);
 	}
 
-	updateCarInfo(car: Car) {
+	getCarByUserId3(userId: number) {
+		return this.http.get<Car>(`${this.url}users/${userId}`);
+	}
+
+	/**
+	 * A PUT method that updates cars's information
+	 * @param car
+	 */
+
+	updateCarInfo(car: Car): Observable<Car> {
 		//console.log(user);
-		return this.http.put(this.url, car).toPromise();
+		return this.http.put<Car>(this.url + car.carId, car);
 	}
 
 
@@ -65,22 +74,12 @@ export class CarService {
 	 * @param userId 
 	 */
 	
-	createCar(car, userId) {
+	createCar(car, userId): Observable<Car> {
 
 		this.user.userId = userId;
 		car.user = this.user;
 
-		this.http.post(this.url, car, {observe: 'response'}).subscribe(
-			(response) => {
-				if (response) {
-					this.userService.updateIsDriver(true, userId);
-					this.router.navigate(['car']);
-				}
-			},
-			(error) => {
-				console.warn(error);
-			}
-		);
+		return this.http.post<Car>(this.url, car);
 	}
 
 	/**
