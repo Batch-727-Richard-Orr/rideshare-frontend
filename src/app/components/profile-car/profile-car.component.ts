@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CarService } from 'src/app/services/car-service/car.service';
 import { Car } from 'src/app/models/car';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-profile-car',
@@ -57,6 +58,7 @@ export class ProfileCarComponent implements OnInit {
     this.failed='Update failed. Please resolve above error(s).';
     this.success='';
 
+<<<<<<< HEAD
     if (this.currentCar.carId) {
       // If errors are sent back, they get displayed. If no errors
       this.carService.updateCarInfo(this.currentCar).subscribe(
@@ -89,6 +91,25 @@ export class ProfileCarComponent implements OnInit {
       )
     }
     
+=======
+    // If errors are sent back, they get displayed. If no errors
+    this.carService.updateCarInfo(this.currentCar).subscribe(
+      resp => {
+        this.success = "Updated Successfully!";
+        this.failed = '';
+      },
+      (err: HttpErrorResponse) => {
+        if (err.status === 400){
+          let errors = err.error;
+          if (errors.make) this.carMakeError = errors.make[0];
+          if (errors.model) this.carModelError = errors.model[0];
+        } else {
+          console.error(err);
+        }
+      }
+
+    );
+>>>>>>> 0d23732424df8131b044cc4376071343bf3297bf
 
   }
 
