@@ -16,7 +16,7 @@ export class GoogleService {
   /**
    * Loads the Google Maps API key from the server, and then adds the
    * functionality as a script to the current web page.
-   * 
+   *
    * @param callback  Optional parameter for anything that needs to be done
    * after the Google Maps API key has been loaded in.
    */
@@ -33,16 +33,16 @@ export class GoogleService {
                   let script: HTMLScriptElement = document.createElement('script');
                   script.addEventListener('load', r => resolve());
                   script.src = `http://maps.googleapis.com/maps/api/js?key=${response["GOOGLE_MAPS_API_KEY"]}&libraries=places`;
-                  document.head.appendChild(script);      
+                  document.head.appendChild(script);
                   }).then(()=>{
                     if (callback) callback();
-                  }); 
-               }    
+                  });
+               }
            }
        );
     } else {
       if (callback) callback();
     }
-    
+
    }
 }
