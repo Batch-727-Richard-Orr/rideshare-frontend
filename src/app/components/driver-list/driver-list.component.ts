@@ -26,7 +26,7 @@ export class DriverListComponent implements OnInit {
   range: number = 5;
   sameOffice: boolean = true;
   recomms: Array <Recommendation> = [];
-  recomm: Recommendation; 
+  recomm: Recommendation;
 
 
 
@@ -179,9 +179,9 @@ export class DriverListComponent implements OnInit {
 
           var rec = generateRecPoints(element, results[0].distance.value, results[0].duration.value, element.car ? element.car.seats : 0);
           recomms.push(rec);
-          
-         
-          
+
+
+
           console.log("Element After " + element.name);
           list.push(element);
           distance.push(results[0].distance);
@@ -250,7 +250,7 @@ export class DriverListComponent implements OnInit {
       recomm.seatPoints = seats * 100;
       recomm.recPoints = recomm.disPoints + recomm.timePoints + recomm.seatPoints;
       return recomm;
-   
+
   }
     // });
 
@@ -584,7 +584,7 @@ export class DriverListComponent implements OnInit {
                     <div class="modal-body">
                     <h1 style="color: #f16a2c;">${this.driversList[index[mark]].name}</h1>
                     <span class="text-muted">Email: </span><h3>${this.driversList[index[mark]].email}</h3>
-                    <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>                
+                    <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>
                     </div>
                     <div class="modal-footer">
                       <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -609,7 +609,7 @@ export class DriverListComponent implements OnInit {
       mark++
 
     })
-    
+
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
