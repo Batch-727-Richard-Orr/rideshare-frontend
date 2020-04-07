@@ -50,7 +50,7 @@
           <td>
             <ng-container *ngFor="let b of pageButtonArray">
               <ng-container *ngIf="b == currentPage + 1; else notHighlighted">
-                <button (click)="changePage(b)" disabled>{{b}}</button>
+                <button style="background-color: rgb(166, 172, 165); color: white;" (click)="changePage(b)" disabled>{{b}}</button>
               </ng-container>
               <ng-template #notHighlighted>
                 <button (click)="changePage(b)">{{b}}</button>
