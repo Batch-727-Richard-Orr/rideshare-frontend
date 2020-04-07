@@ -62,9 +62,9 @@ export class ProfileCarComponent implements OnInit {
     if (this.currentCar.carId) {
       // If errors are sent back, they get displayed. If no errors
       this.carService.updateCarInfo(this.currentCar).subscribe(
-          resp => {
-          this.success = "Updated Successfully!";
-          this.failed = '';
+        resp => {
+        this.success = "Updated Successfully!";
+        this.failed = '';
         },
         (err: HttpErrorResponse) => {
           if (err.status == 400){
@@ -80,10 +80,10 @@ export class ProfileCarComponent implements OnInit {
     } else {
       // CurrentCar is not in the database so create a new one
       this.carService.createCar(this.currentCar, sessionStorage.getItem('userid')).subscribe(
-        res => {
+        resp => {
           this.success = "Added Successfully!";
           this.failed = '';
-          this.currentCar = res;
+          this.currentCar = resp;
         }
       )
     } 
