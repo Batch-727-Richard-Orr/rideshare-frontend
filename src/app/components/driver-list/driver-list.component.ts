@@ -3,6 +3,8 @@ import { UserService } from 'src/app/services/user-service/user.service';
 import { CarService } from 'src/app/services/car-service/car.service';
 import { HttpClient } from '@angular/common/http';
 import { GoogleService } from 'src/app/services/google-service/google.service';
+import { Recommendation } from 'src/app/models/recommendation';
+import { User } from 'src/app/models/user';
 
 @Component({
   selector: 'app-driver-list',
@@ -27,6 +29,9 @@ export class DriverListComponent implements OnInit {
   currentPage: number;
   amountOnPage: number = 5;
   pageButtonArray: Array<string> = [];
+  recomms: Array <Recommendation> = [];
+  recomm: Recommendation; 
+
 
 
   @ViewChild('map', null) mapElement: any;
@@ -37,7 +42,7 @@ export class DriverListComponent implements OnInit {
     private userService: UserService,
     private googleService: GoogleService,
     private carService: CarService,
-    private _ngZone: NgZone
+    private _ngZone: NgZone,
   ) { }
 
   ngOnInit() {
@@ -145,6 +150,7 @@ export class DriverListComponent implements OnInit {
     let list = [];
     let distance = [];
     let time = [];
+    let recomms = [];
 
     let origins = [];
     //set origin
@@ -174,6 +180,20 @@ export class DriverListComponent implements OnInit {
           var destinationList = response.destinationAddresses;
           var results = response.rows[0].elements;
 
+          var rec = generateRecPoints(element, results[0].distance.value, results[0].duration.value, element.car ? element.car.seats : 0);
+          recomms.push(rec);
+          
+          function generateRecPoints(driver: User, distance: number, time: number, seats: number) {
+
+            let recomm = new Recommendation;
+            recomm.driver = driver;
+            recomm.disPoints = (1 / distance) * 10000000;
+            recomm.timePoints = (1 / time) * 1000000;
+            recomm.seatPoints = seats * 100;
+            recomm.recPoints = recomm.disPoints + recomm.timePoints + recomm.seatPoints;
+            return recomm;
+          }
+          
           console.log("Element After " + element.name);
           list.push(element);
           distance.push(results[0].distance);
@@ -186,10 +206,12 @@ export class DriverListComponent implements OnInit {
 
 
     });
-
+    this.recomms = recomms;
     this.time = time;
     this.distance = distance;
     this.driversList = list;
+;
+
 
     this.sleep(1000).then(()=>{this.fillTable();})
 
@@ -262,6 +284,8 @@ export class DriverListComponent implements OnInit {
 
     console.log('------------pageButtonArray--------------');
     console.log(this.pageButtonArray);
+    
+    // });
 
   }
 
@@ -317,18 +341,20 @@ export class DriverListComponent implements OnInit {
     let tempDistance: Array<any> = [];
     let tempTime: Array<any> = [];
     let tempDriverList: Array<any> = [];
+    let tempRecs: Recommendation[] = [];
 
     let mark = 0;
     sortDr.forEach(sDr => {
       tempDistance.push(this.distance[index[mark]]);
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
+      tempRecs.push(this.recomms[index[mark]]);
       mark++
     })
-
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
+    this.recomms = tempRecs;
     this.fillTable();
   }
 
@@ -360,6 +386,7 @@ export class DriverListComponent implements OnInit {
     let tempDistance: Array<any> = [];
     let tempTime: Array<any> = [];
     let tempDriverList: Array<any> = [];
+    let tempRecs: Recommendation[] = [];
 
     let mark = 0;
     var outputDiv = document.getElementById('output');
@@ -367,12 +394,13 @@ export class DriverListComponent implements OnInit {
       tempDistance.push(this.distance[index[mark]]);
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
+      tempRecs.push(this.recomms[index[mark]]);
       mark++;
     })
-
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
+    this.recomms = tempRecs;
 
     this.fillTable();
   }
@@ -405,6 +433,7 @@ export class DriverListComponent implements OnInit {
     let tempDistance: Array<any> = [];
     let tempTime: Array<any> = [];
     let tempDriverList: Array<any> = [];
+    let tempRecs: Recommendation[] = [];
 
     let mark = 0;
     var outputDiv = document.getElementById('output');
@@ -412,12 +441,14 @@ export class DriverListComponent implements OnInit {
       tempDistance.push(this.distance[index[mark]]);
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
+      tempRecs.push(this.recomms[index[mark]]);
       mark++;
     })
 
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
+    this.recomms = tempRecs;
 
     this.fillTable();
   }
@@ -451,6 +482,7 @@ export class DriverListComponent implements OnInit {
     let tempDistance: Array<any> = [];
     let tempTime: Array<any> = [];
     let tempDriverList: Array<any> = [];
+    let tempRecs: Recommendation[] = [];
 
     let mark = 0;
     var outputDiv = document.getElementById('output');
@@ -458,14 +490,64 @@ export class DriverListComponent implements OnInit {
       tempDistance.push(this.distance[index[mark]]);
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
+      tempRecs.push(this.recomms[index[mark]]);
       mark++;
     })
 
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
+    this.recomms = tempRecs;
 
     this.fillTable();
   }
+
+  sortByRec() {
+    this.emptyDriversList();
+
+    console.log(this.driversList);
+    console.log(this.time);
+    console.log(this.distance);
+    console.log(this.recomms);
+
+    let rs = [];
+    //CREATE ARRAY OF recommendations.
+    this.recomms.forEach(r => {rs.push(r);});
+    console.log("Unsorted: ");
+    console.log(rs);
+
+    const rsClone = Object.assign([], rs);
+    console.log("Clone: " + rsClone);
+
+    let sortRs = rs.sort((a, b) => (b.recPoints) - (a.recPoints)); // For descending sort
+    console.log(sortRs);
+
+    let index = [];
+    sortRs.forEach(s => { index.push(rsClone.indexOf(s)); });
+    console.log(index);
+    let tempDistance: Array<any> = [];
+    let tempTime: Array<any> = [];
+    let tempDriverList: Array<any> = [];
+    let tempRecs: Recommendation[] = [];
+
+    let mark = 0;
+    var outputDiv = document.getElementById('output');
+    sortRs.forEach(sDr => {
+      tempDistance.push(this.distance[index[mark]]);
+      tempTime.push(this.time[index[mark]]);
+      tempDriverList.push(this.driversList[index[mark]]);
+      tempRecs.push(this.recomms[index[mark]]);
+      mark++
+    })
+    
+    this.distance = tempDistance;
+    this.time = tempTime;
+    this.driversList = tempDriverList;
+    this.recomms = tempRecs;
+    
+    this.fillTable();
+  }
+
+
 
 }
