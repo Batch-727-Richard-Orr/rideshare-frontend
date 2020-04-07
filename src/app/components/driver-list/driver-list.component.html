@@ -19,6 +19,7 @@
       <!-- <label for="customRange3">{{this.range}}</label> -->
       <ng-template #popContent>{{this.range}}</ng-template>
         <input type="range" class="custom-range" min="0" max="250" step="1" id="customRange3" [(ngModel)]="range" (change)="searchDriver()" [ngbPopover]="popContent" triggers="mouseenter:mouseleave" placement="right">
+        <button type="button" class="btn-primary" (click)="sortByRec()">Driver Recommendations</button> <!--Testing-->
       <div class="custom-control custom-checkbox">
         <input type="checkbox" class="custom-control-input" id="defaultChecked2" [(ngModel)]="sameOffice" (change)="searchDriver()">
         <label class="custom-control-label" for="defaultChecked2">Same Office</label>
@@ -30,7 +31,6 @@
     <div class="row ">
     <div class="col-lg-6 filtered_list">
       <h4 class="text-center">Drivers</h4>
-      <!--<button type="button" id="driverRecs" (click)="sortByRec()">Driver Recommendations</button> -->
 
      <table class="table table-striped ">
        <thead class="thead-dark borderYtoX">
@@ -40,7 +40,6 @@
            <th scope="col" id="timeColumn" (click)="sortByTime()">Time</th>
            <th scope="col" id="seatsColumn" (click)="sortBySeats()">Seats</th>
            <th scope="col" id="infoColumn" (click)="sortByRec()">View Info</th>
-           <th scope="col" id="infoColumn" (click)="sortByRec()">Recommend</th>
          </tr>
        </thead>
        <tbody class="" id="output"></tbody>
