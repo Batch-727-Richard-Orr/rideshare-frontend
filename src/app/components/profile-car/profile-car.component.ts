@@ -20,7 +20,7 @@ export class ProfileCarComponent implements OnInit {
   emptyModel: string;
   failed: String;
 
-  // validation
+  // validation errors that will be displayed
   carYearError: string;
   carMakeError: string;
   carModelError: string;
@@ -58,18 +58,20 @@ export class ProfileCarComponent implements OnInit {
     this.failed='Update failed. Please resolve above error(s).';
     this.success='';
 
+    
     if (this.currentCar.carId) {
       // If errors are sent back, they get displayed. If no errors
       this.carService.updateCarInfo(this.currentCar).subscribe(
         resp => {
-          this.success = "Updated Successfully!";
-          this.failed = '';
+        this.success = "Updated Successfully!";
+        this.failed = '';
         },
         (err: HttpErrorResponse) => {
           if (err.status == 400){
             let errors = err.error;
             if (errors.make) this.carMakeError = errors.make[0];
             if (errors.model) this.carModelError = errors.model[0];
+            if (errors.year) this.carYearError = errors.year[0];
           } else {
             console.error(err);
           }
@@ -78,15 +80,12 @@ export class ProfileCarComponent implements OnInit {
     } else {
       // CurrentCar is not in the database so create a new one
       this.carService.createCar(this.currentCar, sessionStorage.getItem('userid')).subscribe(
-        res => {
+        resp => {
           this.success = "Added Successfully!";
           this.failed = '';
-          this.currentCar = res;
+          this.currentCar = resp;
         }
       )
-    }
-    
-
+    } 
   }
-
 }

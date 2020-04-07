@@ -18,7 +18,7 @@
       <h4 for="customRange3">Distance Range</h4>
       <!-- <label for="customRange3">{{this.range}}</label> -->
       <ng-template #popContent>{{this.range}}</ng-template>
-        <input type="range" class="custom-range" min="0" max="250" step="1" id="customRange3" [(ngModel)]="range" (change)="searchDriver()" [ngbPopover]="popContent" triggers="mouseenter:mouseleave" placement="right">
+        <input type="range" class="custom-range" min="0" max="2000" step="1" id="customRange3" [(ngModel)]="range" (change)="searchDriver()" [ngbPopover]="popContent" triggers="mouseenter:mouseleave" placement="right">
         <button type="button" class="btn-primary" (click)="sortByRec()">Driver Recommendations</button> <!--Testing-->
       <div class="custom-control custom-checkbox">
         <input type="checkbox" class="custom-control-input" id="defaultChecked2" [(ngModel)]="sameOffice" (change)="searchDriver()">
@@ -44,6 +44,22 @@
        </thead>
        <tbody class="" id="output"></tbody>
       </table>
+
+      <table class="text-center" style="width: 100%;">
+        <tr>
+          <td>
+            <ng-container *ngFor="let b of pageButtonArray">
+              <ng-container *ngIf="b == currentPage + 1; else notHighlighted">
+                <button style="background-color: rgb(166, 172, 165); color: white;" (click)="changePage(b)" disabled>{{b}}</button>
+              </ng-container>
+              <ng-template #notHighlighted>
+                <button (click)="changePage(b)">{{b}}</button>
+              </ng-template>
+            </ng-container>
+          </td>
+        </tr>
+      </table>
+
      </div>
      <div class="col-lg-6">
        <h4>Directions:</h4>
@@ -52,8 +68,6 @@
     </div>
 </div>
 
-<table>
-  <tr id="pageButtons"></tr>
-</table>
+
 
 
