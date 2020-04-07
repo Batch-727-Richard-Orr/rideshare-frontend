@@ -2,11 +2,11 @@ import { Injectable, Output, EventEmitter } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from 'src/app/models/user';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { AuthService } from '../auth-service/auth.service';
 import { LogService } from "../log.service"
 import { environment } from '../../../environments/environment';
-import { map } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 
 
 
@@ -17,14 +17,10 @@ import { map } from 'rxjs/operators';
 
 export class UserService {
 
-	/**
-	 * This is an user service
-	 */
-	@Output() fireIsLoggedIn: EventEmitter<any> = new EventEmitter<any>();
-
 	// http headers
 	private headers = new HttpHeaders({'Content-Type': 'application/json'});
-	
+
+	private currentUserSubject = new BehaviorSubject<User>(null);
 
 
 	/**
@@ -42,8 +38,33 @@ export class UserService {
 	 * @param authService An authorization service
 	 */
 
-	constructor(private http: HttpClient, private router: Router, private log: LogService, private authService: AuthService) { }
-  
+	constructor(private http: HttpClient, private router: Router,
+		 private log: LogService, private authService: AuthService) {
+		// If a user's info is already in session storage, then the service
+		// will try to obtain the user's information on instantiation
+		let startingUser: Observable<User> = this.getUserFromSessionStorage();
+		if (startingUser) startingUser.subscribe(
+			resp => {
+				this.currentUserSubject.next(resp);
+			}
+		)
+	 }
+
+	 /**
+	  * Provides an Observable which can be subscribed to by
+	  * components that need the currently logged in user.
+	  * 
+	  * This will reduce the number of GET requests being sent
+	  * by every single component that needs the current user,
+	  * and will update for all subscribers when the Subject
+	  * is updated.
+	  * 
+	  * @returns Observable for the currently logged in user.
+	  */
+	 getLoggedInUser(): Observable<User>{
+		 return this.currentUserSubject.asObservable();
+	 }
+
 	/**
 	 * A GET method for all users
 	 */
@@ -51,44 +72,41 @@ export class UserService {
 	getAllUsers() {
 		return this.http.get<User[]>(this.url);
 	}
-	
+
 	/**
 	 * A GET method for one user
-	 * @param idParam 
+	 * @param idParam
 	 */
 	getUserById(idParam: number){
-		
+
 		console.log(this.url)
 		return this.http.get<User>(this.url+idParam).toPromise();
 
 
 	}
 
-	 
-	getUserById2(idParam2: String): Observable<User>{
-		
-		//console.log(this.url)
-		return this.http.get<User>(this.url+idParam2);
 
-
+	getUserFromSessionStorage(): Observable<User>{
+		let id: string = sessionStorage.getItem("userid");
+		if (id) return this.http.get<User>(this.url + id);
+		else return null;
 	}
 
 	/**
 	 * A POST method that switch an Rider to a Driver
-	 * @param user 
-	 * @param role 
+	 * @param user
+	 * @param role
 	 */
 	createDriver(user: User, role) {
 
 		user.active = true;
-		user.isDriver = false;
+		user.driver = false;
 		user.isAcceptingRides = false;
 		console.log(user);
 
 		this.http.post(this.url, user, {observe: 'response'}).subscribe(
 			(response) => {
 				this.authService.user = response.body;
-				this.fireIsLoggedIn.emit(response.body);
 
 				if (role === 'driver') {
 					this.router.navigate(['new/car']);
@@ -104,22 +122,14 @@ export class UserService {
 	}
 
 	// add user method
-	addUser(user :User) :Observable<User> {
+	addUser(user: User): Observable<User> {
 		return this.http.post<User>(this.url, user, {headers: this.headers});
 	}
 
 	/**
-	 * This function returns the fireIsLoggedIn variable
-	 */
-
-	getEmitter() {
-		return this.fireIsLoggedIn;
-	}
-
-	/**
 	 * A PUT method that updates the user information
-	 * @param isDriver 
-	 * @param userId 
+	 * @param isDriver
+	 * @param userId
 	 */
 
 	updateIsDriver(isDriver, userId) {
@@ -127,7 +137,7 @@ export class UserService {
 		this.getUserById(userId)
 			.then((response) => {
 				this.user = response;
-				this.user.isDriver = isDriver;
+				this.user.driver = isDriver;
 				this.user.isAcceptingRides = (this.user.active && isDriver);
 
 				this.http.put(this.url+userId, this.user).subscribe(
@@ -145,9 +155,9 @@ export class UserService {
 
 	/**
 	 * A PUT method that updates the preference of the user
-	 * @param property 
-	 * @param bool 
-	 * @param userId 
+	 * @param property
+	 * @param bool
+	 * @param userId
 	 */
 
 	updatePreference(property, bool, userId) {
@@ -174,33 +184,42 @@ export class UserService {
 
 	/**
 	 * A PUT method that updates user's information
-	 * @param user 
+	 * 
+	 * Automatically updates the logged in user if the returned object
+	 * from the server matches the current user's info
+	 * 
+	 * @param user
 	 */
 
-	updateUserInfo(user: User) :Observable<User> {
-		//console.log(user);
-		return this.http.put<User>(this.url + user.userId, user);
+	updateUserInfo(user: User): Observable<User>{
+		return this.http.put<User>(this.url + user.userId, user).pipe(
+			tap( (resp: User) => {
+				if (resp && String(resp.userId) == sessionStorage.getItem("userid")){
+					this.currentUserSubject.next(resp);
+				}
+			})
+		);
 	}
 	/**
 	 * A GET method that retrieves a driver by Id
-	 * @param id 
+	 * @param id
 	 */
 
 	getDriverById(id: number): Observable <any>{
 		return this.http.get(this.url + id);
 	}
-	
+
 	/**
 	 * A PUT method that changes the isAcceptingRide variable
-	 * @param data 
+	 * @param data
 	 */
 
 	changeDriverIsAccepting(data) {
 		let id=data.userId;
 		return this.http.put(this.url+id, data).toPromise()
-		
+
 	  }
-	  
+
 	  getRidersForLocation(location: string): Observable <any>{
 		return this.http.get(this.url + '?is-driver=false&location='+ location)
 	  }
@@ -220,7 +239,7 @@ export class UserService {
         headers: new HttpHeaders({"Content-Type": "application/json"}),
         observe: "response" as "body"
       }
-  
+
     /**
      * A function that bans users.
      */
@@ -232,7 +251,7 @@ export class UserService {
 	getRidersForLocation1(homeLocation: string, workLocation: string, range:number, sameOffice: boolean): Observable <any>{
 		return this.http.get(this.url + 'driver/'+ homeLocation +'/'+ workLocation + '/'+ range + '/'+ sameOffice
 		)
-		
-		
+
+
 	}
 }
