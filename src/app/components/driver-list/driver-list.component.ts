@@ -25,6 +25,10 @@ export class DriverListComponent implements OnInit {
   time: Array<any> = [];
   range: number = 5;
   sameOffice: boolean = true;
+  numOfPages: number;
+  currentPage: number;
+  amountOnPage: number = 5;
+  pageButtonArray: Array<string> = [];
   recomms: Array <Recommendation> = [];
   recomm: Recommendation; 
 
@@ -61,8 +65,8 @@ export class DriverListComponent implements OnInit {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-
   searchDriver() {
+    this.currentPage = 0;
     //call service search algorithm ()
     console.log("Searching for Drivers");
     console.log("Range " + this.range);
@@ -85,8 +89,6 @@ export class DriverListComponent implements OnInit {
           )
           this.drivers.push(driver);
         });
-
-        this.emptyDriversList();
 
         this.emptyDriversList();
 
@@ -136,7 +138,9 @@ export class DriverListComponent implements OnInit {
         if (status === 'OK') {
           display.setDirections(response);
         } else {
-          alert('Could not display directions due to: ' + status);
+          if(status !== 'OVER_QUERY_LIMIT'){
+            alert('Could not display directions due to: ' + status);
+          }
         }
       });
     });
@@ -150,8 +154,7 @@ export class DriverListComponent implements OnInit {
 
     let origins = [];
     //set origin
-    origins.push(origin)
-
+    origins.push(origin);
     var outputDiv = document.getElementById('output');
     this.drivers.forEach(async element => {
 
@@ -180,7 +183,16 @@ export class DriverListComponent implements OnInit {
           var rec = generateRecPoints(element, results[0].distance.value, results[0].duration.value, element.car ? element.car.seats : 0);
           recomms.push(rec);
           
-         
+          function generateRecPoints(driver: User, distance: number, time: number, seats: number) {
+
+            let recomm = new Recommendation;
+            recomm.driver = driver;
+            recomm.disPoints = (1 / distance) * 10000000;
+            recomm.timePoints = (1 / time) * 1000000;
+            recomm.seatPoints = seats * 100;
+            recomm.recPoints = recomm.disPoints + recomm.timePoints + recomm.seatPoints;
+            return recomm;
+          }
           
           console.log("Element After " + element.name);
           list.push(element);
@@ -188,51 +200,12 @@ export class DriverListComponent implements OnInit {
           time.push(results[0].duration);
           var name = element.name;
           console.log(element.car)
-          outputDiv.innerHTML += `<tr><td class="col">${name}</td>
-                                    <td class="col">${results[0].distance.text}</td>
-                                    <td class="col">${results[0].duration.text}</td>
-                                    <td class="col">${element.car ? element.car.seats : 0}</td>
-                                    <td class="col">
-                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCentered${element.id}"> View</button>
-                                      <div class="col-lg-5">
-                                      <div class="modal" id="exampleModalCentered${element.id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenteredLabel" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered" role="document">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title" id="exampleModalCenteredLabel">Contact Info:</h5>
-                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                      <span aria-hidden="true">×</span>
-                                                    </button>
-                                                </div>
-                                                <div class="modal-body">
-                                                    <h1 style="color: #f16a2c;">${name}</h1>
-                                                    <span class="text-muted">Email: </span><h3>${element.email}</h3>
-                                                    <span class="text-muted">Phone: </span><h3>${element.phone}</h3>
-                                                </div>
-                                                <div class="modal-footer">
-                                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                                </div>
-                                              </div>
-                                          </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6">
-                                        <div #maps id="gmap" class="img-responsive"></div>
-                                    </div>
-                                  </td></tr>`;
         }
       }
 
 
 
     });
-    // console.log (list);
-    // console.log(distance);
-    // console.log(time);
-
-    this.time = time;
-    this.distance = distance;
-    this.driversList = list;
     this.recomms = recomms;
     this.time = time;
     this.distance = distance;
@@ -240,33 +213,109 @@ export class DriverListComponent implements OnInit {
 ;
 
 
+    this.sleep(1000).then(()=>{this.fillTable();})
 
-    function generateRecPoints(driver: User, distance: number, time: number, seats: number) {
-
-      let recomm = new Recommendation;
-      recomm.driver = driver;
-      recomm.disPoints = (1 / distance) * 10000000;
-      recomm.timePoints = (1 / time) * 1000000;
-      recomm.seatPoints = seats * 100;
-      recomm.recPoints = recomm.disPoints + recomm.timePoints + recomm.seatPoints;
-      return recomm;
-   
   }
+
+  fillTable(){
+    this.emptyDriversList();
+    this.numOfPages = Math.ceil(this.driversList.length / this.amountOnPage);
+    var outputDiv = document.getElementById('output');
+    let startingIndex = this.currentPage * this.amountOnPage;
+    console.log('startingIndex = ' + startingIndex)
+
+    // <td class="col">${(this.time[i].text).replace('days','d').replace('day','d').replace('hours','h').replace('hour','h').replace('mins','m').replace('min','m')}</td>
+
+    for(let i=startingIndex;i<this.driversList.length && i<(startingIndex + this.amountOnPage);i++){
+      console.log('------------------------------- i = ' + i)
+      outputDiv.innerHTML += `<tr><td class="col">${this.driversList[i].name}</td>
+          <td class="col">${this.distance[i].text}</td>
+          <td class="col">${this.time[i].text}</td>
+          <td class="col">${this.driversList[i].car ? this.driversList[i].car.seats : 0}</td>
+          <td class="col">
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCentered${this.driversList[i].id}"> View</button>
+            <div class="col-lg-5">
+            <div class="modal " id="exampleModalCentered${this.driversList[i].id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenteredLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content ">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalCenteredLabel">Contact Info:</h5>
+                          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                          </button>
+                      </div>
+                      <div class="modal-body">
+                      <h1 style="color: #f16a2c;">${this.driversList[i].name}</h1>
+                      <span class="text-muted">Email: </span><h3>${this.driversList[i].email}</h3>
+                      <span class="text-muted">Phone: </span><h3>${this.driversList[i].phone}</h3>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </div>
+                </div>
+              </div>
+          </div>
+          <div class="col-lg-6">
+              <div #maps id="gmap" class="img-responsive"></div>
+          </div>
+        </td></tr>`;
+    }
+
+    let startingPage = this.currentPage >= 2 ? this.currentPage - 1 : 0;
+    this.pageButtonArray = [];
+
+    if(this.currentPage >= 2){
+      this.pageButtonArray.push('First');
+    }if(this.currentPage !== 0){
+      this.pageButtonArray.push('Prev');
+    }
+
+    for(let i=startingPage;i<this.numOfPages && i<this.currentPage + 2;i++){
+      this.pageButtonArray.push(String(i + 1));
+    }
+
+    if(this.numOfPages > this.currentPage + 1){
+      this.pageButtonArray.push('Next')
+    }
+    if(this.numOfPages - this.currentPage >= 3){
+      this.pageButtonArray.push('Last')
+    }
+
+    console.log('------------pageButtonArray--------------');
+    console.log(this.pageButtonArray);
+    
     // });
 
+  }
 
+  changePage(p: string){
+    console.log('------------in the function--------------');
+    switch(p){
+      case 'First':
+        this.currentPage = 0; break;
+      case 'Next':
+        this.currentPage += 1; break;
+      case 'Prev':
+        this.currentPage -= 1; break;
+      case 'Last':
+        this.currentPage = this.numOfPages - 1; break;
+      default:
+        this.currentPage = Number(p) - 1;
+    }
+    this.fillTable();
   }
 
   emptyDriversList() {
-
-
     var outputDiv = document.getElementById('output');
     outputDiv.innerHTML = ``;
-
-
   }
 
   sortByName() {
+    document.getElementById('distanceColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('nameColumn').style.cssText = 'background-color: orange';
+    document.getElementById('timeColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('seatsColumn').style.cssText = 'background-color: #343a40';
     console.log("Sorting By Name");
     this.emptyDriversList();
 
@@ -295,56 +344,25 @@ export class DriverListComponent implements OnInit {
     let tempRecs: Recommendation[] = [];
 
     let mark = 0;
-    var outputDiv = document.getElementById('output');
     sortDr.forEach(sDr => {
       tempDistance.push(this.distance[index[mark]]);
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
       tempRecs.push(this.recomms[index[mark]]);
-
-      outputDiv.innerHTML += `<tr><td class="col">${sDr}</td>
-        <td class="col">${this.distance[index[mark]].text}</td>
-        <td class="col">${this.time[index[mark]].text}</td>
-        <td class="col">${this.driversList[index[mark]].car ? this.driversList[index[mark]].car.seats : 0}</td>
-        <td class="col">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCentered${this.driversList[index[mark]].id}"> View</button>
-          <div class="col-lg-5">
-          <div class="modal " id="exampleModalCentered${this.driversList[index[mark]].id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenteredLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content ">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalCenteredLabel">Contact Info:</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                    <h1 style="color: #f16a2c;">${this.driversList[index[mark]].name}</h1>
-                    <span class="text-muted">Email: </span><h3>${this.driversList[index[mark]].email}</h3>
-                    <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-              </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div #maps id="gmap" class="img-responsive"></div>
-        </div>
-      </td></tr>`;
       mark++
-
     })
-
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
     this.recomms = tempRecs;
+    this.fillTable();
   }
 
   sortByDistance() {
+    document.getElementById('distanceColumn').style.cssText = 'background-color: orange';
+    document.getElementById('nameColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('timeColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('seatsColumn').style.cssText = 'background-color: #343a40';
     this.emptyDriversList();
 
     console.log(this.driversList);
@@ -352,7 +370,7 @@ export class DriverListComponent implements OnInit {
     console.log(this.distance);
 
     let ds = [];
-    //CREATE ARRAY OF Distances. 
+    //CREATE ARRAY OF Distances.
     this.distance.forEach(d => { ds.push(Number(d.value)); })
     console.log("Unsorted: " + ds);
 
@@ -377,59 +395,21 @@ export class DriverListComponent implements OnInit {
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
       tempRecs.push(this.recomms[index[mark]]);
-
-      outputDiv.innerHTML += `<tr><td class="col">${this.driversList[index[mark]].name}</td>
-        <td class="col">${this.distance[index[mark]].text}</td>
-        <td class="col">${this.time[index[mark]].text}</td>
-        <td class="col">${this.driversList[index[mark]].car ? this.driversList[index[mark]].car.seats : 0}</td>
-        <td class="col">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCentered${this.driversList[index[mark]].id}"> View</button>
-          <div class="col-lg-5">
-          <div class="modal" id="exampleModalCentered${this.driversList[index[mark]].id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenteredLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalCenteredLabel">Contact Info:</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                    <h1 style="color: #f16a2c;">${this.driversList[index[mark]].name}</h1>
-                    <span class="text-muted">Email: </span><h3>${this.driversList[index[mark]].email}</h3>
-                    <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-              </div>
-                  <div class="modal-body">
-                  <h1 style="color: #f16a2c;">${this.driversList[index[mark]].name}</h1>
-                  <span class="text-muted">Email: </span><h3>${this.driversList[index[mark]].email}</h3>
-		              <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div #maps id="gmap" class="img-responsive"></div>
-        </div>
-      </td></tr>`;
-      mark++
-
+      mark++;
     })
-
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
     this.recomms = tempRecs;
+
+    this.fillTable();
   }
 
   sortByTime() {
+    document.getElementById('distanceColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('nameColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('timeColumn').style.cssText = 'background-color: orange';
+    document.getElementById('seatsColumn').style.cssText = 'background-color: #343a40';
     this.emptyDriversList();
 
     console.log(this.driversList);
@@ -437,7 +417,7 @@ export class DriverListComponent implements OnInit {
     console.log(this.distance);
 
     let ds = [];
-    //CREATE ARRAY OF Distances. 
+    //CREATE ARRAY OF Distances.
     this.time.forEach(d => { ds.push(Number(d.value)); })
     console.log("Unsorted: " + ds);
 
@@ -462,59 +442,22 @@ export class DriverListComponent implements OnInit {
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
       tempRecs.push(this.recomms[index[mark]]);
-
-      outputDiv.innerHTML += `<tr><td class="col">${this.driversList[index[mark]].name}</td>
-        <td class="col">${this.distance[index[mark]].text}</td>
-        <td class="col">${this.time[index[mark]].text}</td>
-        <td class="col">${this.driversList[index[mark]].car ? this.driversList[index[mark]].car.seats : 0}</td>
-        <td class="col">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCentered${this.driversList[index[mark]].id}"> View</button>
-          <div class="col-lg-5">
-          <div class="modal" id="exampleModalCentered${this.driversList[index[mark]].id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenteredLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalCenteredLabel">Contact Info:</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                    <h1 style="color: #f16a2c;">${this.driversList[index[mark]].name}</h1>
-                    <span class="text-muted">Email: </span><h3>${this.driversList[index[mark]].email}</h3>
-                    <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>                
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-              </div>
-                  <div class="modal-body">
-                  <h1 style="color: #f16a2c;">${this.driversList[index[mark]].name}</h1>
-                  <span class="text-muted">Email: </span><h3>${this.driversList[index[mark]].email}</h3>
-		              <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div #maps id="gmap" class="img-responsive"></div>
-        </div>
-      </td></tr>`;
-      mark++
-
+      mark++;
     })
 
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
     this.recomms = tempRecs;
+
+    this.fillTable();
   }
 
   sortBySeats() {
+    document.getElementById('distanceColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('nameColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('timeColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('seatsColumn').style.cssText = 'background-color: orange';
     this.emptyDriversList();
 
     console.log(this.driversList);
@@ -548,56 +491,15 @@ export class DriverListComponent implements OnInit {
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
       tempRecs.push(this.recomms[index[mark]]);
-
-      outputDiv.innerHTML += `<tr><td class="col">${this.driversList[index[mark]].name}</td>
-        <td class="col">${this.distance[index[mark]].text}</td>
-        <td class="col">${this.time[index[mark]].text}</td>
-        <td class="col">${this.driversList[index[mark]].car ? this.driversList[index[mark]].car.seats : 0}</td>
-        <td class="col">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCentered${this.driversList[index[mark]].id}"> View</button>
-          <div class="col-lg-5">
-          <div class="modal" id="exampleModalCentered${this.driversList[index[mark]].id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenteredLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalCenteredLabel">Contact Info:</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                    <h1 style="color: #f16a2c;">${this.driversList[index[mark]].name}</h1>
-                    <span class="text-muted">Email: </span><h3>${this.driversList[index[mark]].email}</h3>
-                    <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>                
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-              </div>
-                  <div class="modal-body">
-                  <h1 style="color: #f16a2c;">${this.driversList[index[mark]].name}</h1>
-                  <span class="text-muted">Email: </span><h3>${this.driversList[index[mark]].email}</h3>
-		              <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div #maps id="gmap" class="img-responsive"></div>
-        </div>
-      </td></tr>`;
-      mark++
-
+      mark++;
     })
-    
+
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
     this.recomms = tempRecs;
+
+    this.fillTable();
   }
 
   sortByRec() {
@@ -635,56 +537,17 @@ export class DriverListComponent implements OnInit {
       tempTime.push(this.time[index[mark]]);
       tempDriverList.push(this.driversList[index[mark]]);
       tempRecs.push(this.recomms[index[mark]]);
-
-      outputDiv.innerHTML += `<tr><td class="col">${this.driversList[index[mark]].name}</td>
-        <td class="col">${this.distance[index[mark]].text}</td>
-        <td class="col">${this.time[index[mark]].text}</td>
-        <td class="col">${this.driversList[index[mark]].car ? this.driversList[index[mark]].car.seats : 0}</td>
-        <td class="col">
-        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCentered${this.driversList[index[mark]].id}"> View</button>
-          <div class="col-lg-5">
-          <div class="modal" id="exampleModalCentered${this.driversList[index[mark]].id}" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenteredLabel" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalCenteredLabel">Contact Info:</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                          <span aria-hidden="true">×</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                    <h1 style="color: #f16a2c;">${this.driversList[index[mark]].name}</h1>
-                    <span class="text-muted">Email: </span><h3>${this.driversList[index[mark]].email}</h3>
-                    <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>                
-                    </div>
-                    <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                  </div>
-              </div>
-                  <div class="modal-body">
-                  <h1 style="color: #f16a2c;">${this.driversList[index[mark]].name}</h1>
-                  <span class="text-muted">Email: </span><h3>${this.driversList[index[mark]].email}</h3>
-		              <span class="text-muted">Phone: </span><h3>${this.driversList[index[mark]].phone}</h3>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                  </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div #maps id="gmap" class="img-responsive"></div>
-        </div>
-      </td></tr>`;
       mark++
-
     })
     
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
     this.recomms = tempRecs;
+    
+    this.fillTable();
   }
+
+
 
 }
