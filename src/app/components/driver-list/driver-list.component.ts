@@ -30,7 +30,7 @@ export class DriverListComponent implements OnInit {
   amountOnPage: number = 5;
   pageButtonArray: Array<string> = [];
   recomms: Array <Recommendation> = [];
-  recomm: Recommendation; 
+  recomm: Recommendation;
 
 
 
@@ -182,7 +182,7 @@ export class DriverListComponent implements OnInit {
 
           var rec = generateRecPoints(element, results[0].distance.value, results[0].duration.value, element.car ? element.car.seats : 0);
           recomms.push(rec);
-          
+
           function generateRecPoints(driver: User, distance: number, time: number, seats: number) {
 
             let recomm = new Recommendation;
@@ -193,7 +193,7 @@ export class DriverListComponent implements OnInit {
             recomm.recPoints = recomm.disPoints + recomm.timePoints + recomm.seatPoints;
             return recomm;
           }
-          
+
           console.log("Element After " + element.name);
           list.push(element);
           distance.push(results[0].distance);
@@ -284,7 +284,7 @@ export class DriverListComponent implements OnInit {
 
     console.log('------------pageButtonArray--------------');
     console.log(this.pageButtonArray);
-    
+
     // });
 
   }
@@ -312,6 +312,7 @@ export class DriverListComponent implements OnInit {
   }
 
   sortByName() {
+    this.currentPage = 0;
     document.getElementById('distanceColumn').style.cssText = 'background-color: #343a40';
     document.getElementById('nameColumn').style.cssText = 'background-color: orange';
     document.getElementById('timeColumn').style.cssText = 'background-color: #343a40';
@@ -359,6 +360,7 @@ export class DriverListComponent implements OnInit {
   }
 
   sortByDistance() {
+    this.currentPage = 0;
     document.getElementById('distanceColumn').style.cssText = 'background-color: orange';
     document.getElementById('nameColumn').style.cssText = 'background-color: #343a40';
     document.getElementById('timeColumn').style.cssText = 'background-color: #343a40';
@@ -406,6 +408,7 @@ export class DriverListComponent implements OnInit {
   }
 
   sortByTime() {
+    this.currentPage = 0;
     document.getElementById('distanceColumn').style.cssText = 'background-color: #343a40';
     document.getElementById('nameColumn').style.cssText = 'background-color: #343a40';
     document.getElementById('timeColumn').style.cssText = 'background-color: orange';
@@ -454,6 +457,7 @@ export class DriverListComponent implements OnInit {
   }
 
   sortBySeats() {
+    this.currentPage = 0;
     document.getElementById('distanceColumn').style.cssText = 'background-color: #343a40';
     document.getElementById('nameColumn').style.cssText = 'background-color: #343a40';
     document.getElementById('timeColumn').style.cssText = 'background-color: #343a40';
@@ -503,6 +507,12 @@ export class DriverListComponent implements OnInit {
   }
 
   sortByRec() {
+    this.currentPage = 0;
+    document.getElementById('distanceColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('nameColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('timeColumn').style.cssText = 'background-color: #343a40';
+    document.getElementById('seatsColumn').style.cssText = 'background-color: #343a40';
+
     this.emptyDriversList();
 
     console.log(this.driversList);
@@ -539,12 +549,12 @@ export class DriverListComponent implements OnInit {
       tempRecs.push(this.recomms[index[mark]]);
       mark++
     })
-    
+
     this.distance = tempDistance;
     this.time = tempTime;
     this.driversList = tempDriverList;
     this.recomms = tempRecs;
-    
+
     this.fillTable();
   }
 
