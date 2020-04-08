@@ -19,7 +19,7 @@
       <!-- <label for="customRange3">{{this.range}}</label> -->
       <ng-template #popContent>{{this.range}}</ng-template>
         <input type="range" class="custom-range" min="0" max="2000" step="1" id="customRange3" [(ngModel)]="range" (change)="searchDriver()" [ngbPopover]="popContent" triggers="mouseenter:mouseleave" placement="right">
-        <button type="button" class="btn-primary" (click)="sortByRec()">Driver Recommendations</button> <!--Testing-->
+        <button type="button" class="btn btn-primary" (click)="sortByRec()">Driver Recommendations</button> <!--Testing-->
       <div class="custom-control custom-checkbox">
         <input type="checkbox" class="custom-control-input" id="defaultChecked2" [(ngModel)]="sameOffice" (change)="searchDriver()">
         <label class="custom-control-label" for="defaultChecked2">Same Office</label>
